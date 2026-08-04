@@ -52,45 +52,6 @@ Simulated using Icarus Verilog and EPWave. The waveform below demonstrates execu
 
 ---
 
-graph TD
-    %% Fetch Stage
-    subgraph Fetch Stage
-        PC[Program Counter] -->|addr| ROM[(Instruction ROM)]
-    end
-
-    %% Decoding
-    ROM -->|opcode| CU[Control Unit]
-    ROM -->|operand| OPR[Address/Data Bus]
-
-    %% Control Signals
-    CU -.->|ram_we| RAM
-    CU -.->|jmp_e| PC
-    CU -.->|sel| ALU
-
-    %% Registers
-    subgraph Register File
-        REG_A[Register A]
-        REG_B[Register B]
-        REG_RES[Register RES]
-    end
-
-    %% External & Memory Data Paths
-    EXT[ext_data pin] -->|1101| REG_A
-    RAM[(Data RAM)] -->|1001| REG_A
-    REG_A -->|data_in| RAM
-
-    %% ALU Data Paths
-    REG_A -->|a| ALU((ALU))
-    REG_B -->|b| ALU
-    
-    ALU -->|alu_out| REG_A
-    ALU -->|alu_out| REG_B
-    ALU -->|alu_out| REG_RES
-
-    %% Address Routing
-    OPR -.->|load_add| PC
-    OPR -.->|addr| RAM
-
 ## 🛠️ How to Run
 
 ### Run on EDA Playground
