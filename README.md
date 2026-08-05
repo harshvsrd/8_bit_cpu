@@ -1,4 +1,4 @@
-# 8-Bit Custom Single-Cycle CPU in Verilog 💻⚙️
+<img width="409" height="531" alt="{27198618-16A0-4AE1-82E1-557ED3540862}" src="https://github.com/user-attachments/assets/5805fccc-1509-43be-a6db-20f27015f63f" /># 8-Bit Custom Single-Cycle CPU in Verilog 💻⚙️
 
 A custom 8-bit Central Processing Unit built from scratch in Verilog using a single-cycle RISC architecture. The CPU executes instructions in a single clock cycle through combinational decoding and execution, featuring a custom Instruction Set Architecture (ISA), onboard Data RAM, Instruction ROM, and an integrated ALU.
 
@@ -42,6 +42,20 @@ Simulated using Icarus Verilog and EPWave. The waveform below demonstrates execu
 *(Note: Signals are displayed in Hexadecimal. e.g., `63` hex = `99` decimal)*
 
 ---
+## 📈 Synthesis & Gate-Level Utilization
+
+The RTL design was synthesized using **Yosys 0.37** to analyze gate-level cell counts and datapath complexity.
+
+### Resource Summary
+| Cell Type | Function | Count |
+| :--- | :--- | :--- |
+| **Total Cells** | **Gate Netlist Size** | **615** |
+| `$_DFFE_PP_` / `$_SDFFCE_` | Sequential Logic / Registers | 88 |
+| `$_MUX_` | Datapath Routing | 106 |
+| Logic Gates (`AND`, `OR`, `XOR`, etc.) | Combinational / ALU Logic | ~416 |
+
+### Yosys Output
+![Yosys Synthesis Report](docs/synthesis_screenshot.png)
 
 ## 🔮 Future Improvements
 
