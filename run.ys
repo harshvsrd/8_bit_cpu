@@ -1,0 +1,17 @@
+# 1. Read your Verilog design file
+read_verilog -sv design.sv
+
+# 2. Set the top module
+hierarchy -top cpu
+
+# 3. THE MAGIC COMMAND: Expose all internal wires as outputs so Yosys doesn't delete them
+expose cpu
+
+# 4. Flatten the hierarchy to accurately count all submodule gates
+flatten
+
+# 5. Synthesize the design
+synth
+
+# 6. Save the statistics to output.txt
+tee -o output.txt stat
