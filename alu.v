@@ -34,7 +34,7 @@ always @(*) begin
         3'b100:alu_out = a ^ b;//xor
         3'b101:alu_out = a << 1;//shl
         3'b110:alu_out = a >> 1;//shr
-        3'b111:alu_out = a;//hold a
+      3'b111:alu_out = a;//hold a
         default:alu_out = 8'd0;
 
     endcase
