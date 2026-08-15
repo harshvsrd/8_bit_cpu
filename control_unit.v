@@ -60,6 +60,10 @@ end
 // 2. SEQUENTIAL: Update physical registers on clock edge (Use '<=')
 always @(posedge clk) begin
     case(opcode)
+      4'b0001, 4'b0010, 4'b0011, 4'b0100, 4'b0101, 4'b0110: begin
+            res <= alu_out;
+        end
+
         4'b0000: begin // Register Operations
             case(operand[3:2])
                 2'b00: begin // Destination = A
