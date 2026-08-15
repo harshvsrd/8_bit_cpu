@@ -23,18 +23,20 @@ module tb;
                  $time, dut.pc, dut.instruction, dut.opcode, dut.A, dut.B, dut.alu_out ,dut.overflow ,dut.carry, dut.halt);
       
       ext_data=8'd99;
-       
-      // Pre-load RAM with decimal values 10 and 20
-  dut.DR.memory[0] = 8'd10;
-  dut.DR.memory[1] = 8'd20;
-        // Initialization & Reset Sequence
-        clk = 0;
+     clk = 0;
         rst = 1;
 
         #10 rst = 0; // Release reset
 
+        // PRE-LOAD DATA HERE (AFTER RESET!)
+        dut.DR.memory[0] = 8'd10; // Multiplier
+        dut.DR.memory[1] = 8'd20; // Multiplicand
+        dut.DR.memory[2] = 8'd0;  // Initial Sum = 0
+        dut.DR.memory[3] = 8'd1;  // Constant 1
+
+      #1545 $display(dut.DR.memory[2]);
         // Auto-stop simulation after 200 time units to prevent infinite loops
-        #200 $finish;
+        #2000 $finish;
     end
 
     always @(posedge clk) begin
