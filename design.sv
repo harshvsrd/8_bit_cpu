@@ -1,4 +1,3 @@
-// Code your design here
 `include "alu.v"
 `include "pc.v"
 `include "control_unit.v"
@@ -14,9 +13,7 @@ module cpu(
 
 );
 
-    //----------------------------
     // Internal Wires
-    //----------------------------
 
     wire [7:0] pc;
 
@@ -47,16 +44,12 @@ module cpu(
     wire [7:0] addr;
     wire [7:0] load_add;
 
-    //----------------------------
     // Instruction Decode
-    //----------------------------
 
     assign opcode  = instruction[7:4];
     assign operand = instruction[3:0];
 
-    //----------------------------
     // Program Counter
-    //----------------------------
 
     pc PC(
 
@@ -69,9 +62,7 @@ module cpu(
 
     );
 
-    //----------------------------
     // Instruction Memory
-    //----------------------------
 
     instruction_mem IM(
 
@@ -80,23 +71,20 @@ module cpu(
 
     );
 
-    //----------------------------
+ 
     // Data RAM
-    //----------------------------
 
     data_ram DR(
 
         .clk(clk),
         .we(ram_we),
         .addr(addr),
+      .rst(rst),
         .data_in(data_in),
         .data_out(ram_data)
 
     );
-
-    //----------------------------
     // ALU
-    //----------------------------
 
     alu ALU(
 
@@ -112,9 +100,7 @@ module cpu(
 
     );
 
-    //----------------------------
     // Control Unit
-    //----------------------------
 
     control_unit CU(
 
