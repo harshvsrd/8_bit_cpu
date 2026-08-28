@@ -34,17 +34,25 @@ A custom 8-bit Central Processing Unit built in Verilog. This repository documen
 ## 🛑 Version 1: Single-Cycle Architecture
 Located in `/single_cycle/`. Executed via combinational control decoding with register updates on the positive clock edge. 
 
+### Hand-Drawn Hardware Planning
+The architecture was mapped out structurally before writing the RTL. Below is the initial logic flow and the detailed port-connection mapping used to wire the Control Unit, ALU, and Memories.
+
+![Logic Architecture](logic_architecture.jpg)
+*High-level datapath and structural block planning.*
+
+![Port Connections](port_conections_architecture.jpg)
+*Detailed module port mappings and control signal routing.*
+
 ### Simulation & Waveforms
 Simulated using Icarus Verilog and EPWave. The waveform below demonstrates execution of a 16-instruction test suite verifying memory loads, ALU operations, flag generation, branching, and system halt.
 
-![CPU Simulation Waveform](waveform.png)
-*(Note: Replace `waveform.png` with your actual file name. Signals are displayed in Hexadecimal.)*
+![CPU Simulation Waveform](ep_wave.png)
+*(Note: Signals are displayed in Hexadecimal. e.g., `63` hex = `99` decimal)*
 
 ### Synthesis & Gate-Level Utilization
 The RTL design was synthesized using **Yosys 0.37** to analyze gate-level cell counts and datapath complexity.
 
-![Yosys Synthesis Report](synthesis_screenshot.png)
-*(Note: Replace `synthesis_screenshot.png` with your actual file name.)*
+![Yosys Synthesis Report](synthesis.png)
 
 **Resource Summary:**
 * **Total Cells (Gate Netlist Size):** 615
@@ -57,18 +65,16 @@ The RTL design was synthesized using **Yosys 0.37** to analyze gate-level cell c
 ## ⚡ Version 2: 3-Stage Pipelined Architecture
 Located in `/pipelined/`. The datapath was partitioned into three discrete stages to significantly shorten the critical path and boost maximum clock frequency ($F_{max}$).
 
-### Pipeline Stages
-1. **Fetch:** Program Counter logic and Instruction ROM read.
-2. **Decode & Execute:** Control unit decoding, Register bypassing, and ALU execution.
-3. **Memory & Write-Back:** Data RAM access and structural Register File updates.
+### Why 3 Stages Instead of 5?
+In standard computer architecture, a 5-stage pipeline is common. However, pipeline speed is bottlenecked by its slowest stage—typically memory access. If an SRAM memory read/write takes 10ns, the clock period must be at least 10ns. Because this custom 8-bit ALU and opcode decoder are extremely fast (e.g., 2–3ns total), artificially splitting Decode and Execute into separate stages would not increase the overall CPU frequency. Grouping them into a single 3-stage pipeline perfectly balances the combinational delay against the memory bottlenecks.
 
 ### Architecture Diagram
-Below is the datapath flow showing the structural pipeline registers (`IF/ID`, `EX/MEM`), the Forwarding Unit to resolve Read-After-Write (RAW) data hazards, and the feedback flush loop for control hazards.
+Below is the datapath flow showing the structural pipeline registers (`IF/ID`, `EX/MEM`), the Forwarding Unit, and the feedback flush loop for control hazards.
 
-![Pipelined Architecture Diagram](Instruction-2026-08-26-132135.jpg)
+![Pipelined Architecture Diagram](Instruction-2026-08-26-132135.png)
 
 ### Hazard Management
-* **Data Hazards:** A custom Forwarding Unit snoops the `EX/MEM` register and dynamically bypasses the Register File to feed fresh data directly to the ALU.
+* **Data Hazards (RAW) & The Forwarding Unit:** Pipelining creates Read-After-Write hazards (e.g., Instruction 2 needs a value Instruction 1 hasn't written to the Register File yet). Instead of stalling the CPU, a custom **Forwarding Unit** snoops the `EX/MEM` pipeline register. If it detects a RAW hazard, it intercepts the freshly calculated data and routes it directly into the ALU bypass muxes, overriding the stale Register File data.
 * **Control Hazards:** Unconditional and conditional jumps trigger a `flush` signal to the `IF/ID` register, scrubbing the incorrect instruction fetched during the branch calculation.
 
 ---
