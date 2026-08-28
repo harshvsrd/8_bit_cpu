@@ -37,17 +37,17 @@ Located in `/single_cycle/`. Executed via combinational control decoding with re
 ### Hand-Drawn Hardware Planning
 The architecture was mapped out structurally before writing the RTL. Below is the initial logic flow and the detailed port-connection mapping used to wire the Control Unit, ALU, and Memories.
 
-![Logic Architecture](single_cycle/logic_architecture.jpg)
+![Logic Architecture](single_cycle/logic_architecture.png)
 *High-level datapath and structural block planning.*
 
-![Port Connections](single_cycle/port_conections_architecture.jpg)
+![Port Connections](single_cycle/port_conections_architecture.png)
 *Detailed module port mappings and control signal routing.*
 
 ### Simulation & Waveforms
 Simulated using Icarus Verilog and EPWave. The waveform below demonstrates execution of a 16-instruction test suite verifying memory loads, ALU operations, flag generation, branching, and system halt.
 
 ![CPU Simulation Waveform](single_cycle/ep_wave.png)
-*(Note: Signals are displayed in Hexadecimal. e.g., `63` hex = `99` decimal)*
+this shows results for multiplication of 2 nos algorithm 
 
 ### Synthesis & Gate-Level Utilization
 The RTL design was synthesized using **Yosys 0.37** to analyze gate-level cell counts and datapath complexity.
