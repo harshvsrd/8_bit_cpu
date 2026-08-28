@@ -1,19 +1,15 @@
-/># 8-Bit Custom Single-Cycle CPU in Verilog 💻⚙️
+# 8-Bit Custom CPU in Verilog 💻⚙️
 
-A custom 8-bit Central Processing Unit built from scratch in Verilog using a single-cycle RISC architecture. The CPU executes instructions in a single clock cycle through combinational decoding and execution, featuring a custom Instruction Set Architecture (ISA), onboard Data RAM, Instruction ROM, and an integrated ALU.
+A custom 8-bit Central Processing Unit built in Verilog. This repository documents the evolution of the CPU from a basic single-cycle architecture to a high-throughput 3-stage pipelined design. 
 
-## Purpose
-to learn by building from scratch, this cpu has drawbacks which will be improved in future versions
+**Development Note:** The original single-cycle datapath, custom Instruction Set Architecture (ISA), and testbenches were designed and built entirely from scratch by me. The 3-stage pipelined architecture was conceptually modeled by me and refactored from the original codebase using AI to assist with structural partitioning and hazard logic integration.
 
-
-## 🚀 Features
-* **Single-Cycle Datapath:** Executed via combinational control decoding with register updates on the positive clock edge.
-* **8-Bit ALU:** Hardware support for ADD, SUB, OR, AND, XOR, SHL, SHR, and PASS operations with Carry/Borrow and Zero flags.
-* **Memory System:** Integrated 256-byte Instruction Memory (ROM) and 256-byte Data Memory (RAM).
-* **Branching Logic:** Supports unconditional jumps (`JMP`) and zero-flag conditional jumps (`JMPE`).
-* **External I/O:** Custom `LOAD EXT` instruction to pull live 8-bit hardware input into CPU registers.
+## 📁 Repository Structure
+* `/single_cycle/` - The original CPU where instructions decode and execute in one clock cycle.
+* `/pipelined/` - The upgraded 3-stage pipelined CPU featuring a forwarding unit and control hazard flushing.
 
 ## 🧠 Instruction Set Architecture (ISA)
+*(Common across both architectures)*
 
 | Opcode | Instruction | Description |
 | :--- | :--- | :--- |
@@ -35,48 +31,58 @@ to learn by building from scratch, this cpu has drawbacks which will be improved
 
 ---
 
-## 📊 Simulation & Waveforms
+## 🛑 Version 1: Single-Cycle Architecture
+Located in `/single_cycle/`. Executed via combinational control decoding with register updates on the positive clock edge. 
+
+### Simulation & Waveforms
 Simulated using Icarus Verilog and EPWave. The waveform below demonstrates execution of a 16-instruction test suite verifying memory loads, ALU operations, flag generation, branching, and system halt.
 
-![CPU Simulation Waveform]({23B33AC0-0D43-4754-AB5A-357B201BDE17}.png)
-*(Note: Signals are displayed in Hexadecimal. e.g., `63` hex = `99` decimal)*
+![CPU Simulation Waveform](waveform.png)
+*(Note: Replace `waveform.png` with your actual file name. Signals are displayed in Hexadecimal.)*
 
----
-## 📈 Synthesis & Gate-Level Utilization
-
+### Synthesis & Gate-Level Utilization
 The RTL design was synthesized using **Yosys 0.37** to analyze gate-level cell counts and datapath complexity.
 
-<img width="409" height="531" alt="{27198618-16A0-4AE1-82E1-557ED3540862}" src="https://github.com/user-attachments/assets/5805fccc-1509-43be-a6db-20f27015f63f" 
+![Yosys Synthesis Report](synthesis_screenshot.png)
+*(Note: Replace `synthesis_screenshot.png` with your actual file name.)*
 
-### Resource Summary
-| Cell Type | Function | Count |
-| :--- | :--- | :--- |
-| **Total Cells** | **Gate Netlist Size** | **615** |
-| `$_DFFE_PP_` / `$_SDFFCE_` | Sequential Logic / Registers | 88 |
-| `$_MUX_` | Datapath Routing | 106 |
-| Logic Gates (`AND`, `OR`, `XOR`, etc.) | Combinational / ALU Logic | ~416 |
+**Resource Summary:**
+* **Total Cells (Gate Netlist Size):** 615
+* Sequential Logic / Registers: 88
+* Datapath Routing MUXes: 106
+* Combinational / ALU Logic: ~416
 
-### Yosys Output
-![Yosys Synthesis Report](docs/synthesis_screenshot.png)
+---
 
-## 🔮 Future Improvements
+## ⚡ Version 2: 3-Stage Pipelined Architecture
+Located in `/pipelined/`. The datapath was partitioned into three discrete stages to significantly shorten the critical path and boost maximum clock frequency ($F_{max}$).
 
-* **3-Stage Pipelining (Highest Priority):** Restructure the single-cycle datapath into a 3-stage pipeline (**Fetch → Execute → Writeback**) using pipeline registers (`IF/EX`, `EX/WB`) to significantly shorten the critical path and boost clock frequency.
-* **Data Forwarding & Hazard Unit:** Add hazard detection and bypassing logic to resolve Read-After-Write (RAW) register dependencies in the pipelined core without stalling.
-* **Expanded Register File:** Expand beyond accumulator registers (`A`, `B`, `RES`) into a general-purpose Register File (R0–R7).
-* **Stack Pointer & Subroutines:** Add a hardware Stack Pointer (SP) and call/return instructions (`CALL`, `RET`) to support nested functions.
+### Pipeline Stages
+1. **Fetch:** Program Counter logic and Instruction ROM read.
+2. **Decode & Execute:** Control unit decoding, Register bypassing, and ALU execution.
+3. **Memory & Write-Back:** Data RAM access and structural Register File updates.
+
+### Architecture Diagram
+Below is the datapath flow showing the structural pipeline registers (`IF/ID`, `EX/MEM`), the Forwarding Unit to resolve Read-After-Write (RAW) data hazards, and the feedback flush loop for control hazards.
+
+![Pipelined Architecture Diagram](Instruction-2026-08-26-132135.jpg)
+
+### Hazard Management
+* **Data Hazards:** A custom Forwarding Unit snoops the `EX/MEM` register and dynamically bypasses the Register File to feed fresh data directly to the ALU.
+* **Control Hazards:** Unconditional and conditional jumps trigger a `flush` signal to the `IF/ID` register, scrubbing the incorrect instruction fetched during the branch calculation.
 
 ---
 
 ## 🛠️ How to Run
 
 ### Run on EDA Playground
-1. Open the project on EDA Playground: **https://www.edaplayground.com/x/gqGv**
+1. Open the project on EDA Playground.
 2. Ensure **Icarus Verilog** is selected as the simulator.
 3. Check **Open EPWave after run**.
 4. Click **Run** to execute the testbench.
 
 ### Run Locally
+Navigate to the directory of the version you want to run (`cd single_cycle` or `cd pipelined`), then execute:
 ```bash
-iverilog -o cpu_sim tb.v design.v
+iverilog -o cpu_sim tb.v design.sv
 vvp cpu_sim
