@@ -1,16 +1,12 @@
 module control_unit(
     input zero,
-    input [3:0] opcode,
-    input [3:0] operand,
+    input [3:0] opcode,operand,
     input [7:0] a, // Routed from the Forwarding Unit / Register File
 
     output reg [7:0] data_in,
     output reg [2:0] sel,
-    output reg halt,
-    output reg jmp_e,
-    output reg ram_we,
-    output reg [7:0] addr,
-    output reg [7:0] load_add
+    output reg halt,jmp_e,ram_we,
+    output reg [7:0] addr,load_add
 );
 
 always @(*) begin
