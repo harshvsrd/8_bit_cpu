@@ -9,7 +9,6 @@ initial begin
     $readmemb("program.mem", rom);
 end
 
-// Changed from always @(*) to continuous assignment
 assign instruction = rom[addr];
 
 endmodule
