@@ -37,10 +37,10 @@ Located in `/single_cycle/`. Executed via combinational control decoding with re
 ### Hand-Drawn Hardware Planning
 The architecture was mapped out structurally before writing the RTL. Below is the initial logic flow and the detailed port-connection mapping used to wire the Control Unit, ALU, and Memories.
 
-![Logic Architecture](single_cycle/logic_architecture.jpg)
+![Logic Architecture](single_cycle/logic_architecture.jpeg)
 *High-level datapath and structural block planning.*
 
-![Port Connections](single_cycle/port_conections_architecture.jpg)
+![Port Connections](single_cycle/port_conections_architecture.jpeg)
 *Detailed module port mappings and control signal routing.*
 
 ### Simulation & Waveforms
