@@ -1,4 +1,3 @@
-// Code your design here
 `include "alu.v"
 `include "pc.v"
 `include "control_unit.v"
@@ -10,57 +9,34 @@
 `include "forwarding_unit.v"
 
 module cpu(
-    input clk,
-    input rst,
+    input clk,rst,
     input [7:0] ext_data
 );
 
-    //----------------------------
     // Stage 1 Wires (Fetch)
-    //----------------------------
-    wire [7:0] if_pc;
-    wire [7:0] if_instruction;
-
-    //----------------------------
+  wire [7:0] if_pc,if_instruction;
     // Stage 2 Wires (Decode/Execute)
-    //----------------------------
-    wire [7:0] id_pc;
-    wire [7:0] id_instruction;
-    wire [3:0] id_opcode;
-    wire [3:0] id_operand;
+  wire [7:0] id_pc,id_instruction;
+  wire [3:0] id_opcode,id_operand;
 
-    wire [7:0] A;
-    wire [7:0] B;
-    wire [7:0] RES;
-    
-    wire [7:0] fwd_A;
-    wire [7:0] fwd_B;
-    
-    wire [7:0] alu_out;
-    wire [7:0] data_in;
+  wire [7:0] A,B,RES,fwd_A,fwd_B,alu_out,data_in;
     wire [2:0] sel;
     wire zero, carry, overflow;
     wire halt, jmp_e, ram_we;
     wire [7:0] addr, load_add;
     wire flush;
 
-    //----------------------------
-    // Stage 3 Wires (Memory/Write-Back)
-    //----------------------------
-    wire [3:0] mem_opcode;
-    wire [3:0] mem_operand;
-    wire [7:0] mem_alu_out;
-    wire [7:0] mem_addr;
-    wire [7:0] mem_data_in;
-    wire       mem_ram_we;
+  // Stage 3 Wires (Memory/Write-Back)
+  wire [3:0] mem_opcode,mem_operand;
+  wire [7:0] mem_alu_out,mem_addr,mem_data_in;
+    wire  mem_ram_we;
     wire [7:0] ram_data;
 
     // Flush logic for control hazards
     assign flush = jmp_e;
 
-    //========================================================================
+   
     // STAGE 1: FETCH
-    //========================================================================
     pc PC(.clk(clk), .rst(rst), .halt(halt), .jmp_e(jmp_e), .load_add(load_add), .pc(if_pc));
     instruction_mem IM(.addr(if_pc), .instruction(if_instruction));
 
@@ -70,9 +46,7 @@ module cpu(
         .id_pc(id_pc), .id_instruction(id_instruction)
     );
 
-    //========================================================================
     // STAGE 2: DECODE & EXECUTE
-    //========================================================================
     assign id_opcode  = id_instruction[7:4];
     assign id_operand = id_instruction[3:0];
 
@@ -105,9 +79,8 @@ module cpu(
         .mem_alu_out(mem_alu_out), .mem_addr(mem_addr), .mem_data_in(mem_data_in), .mem_ram_we(mem_ram_we)
     );
 
-    //========================================================================
     // STAGE 3: MEMORY & WRITE-BACK
-    //========================================================================
+   
     data_ram DR(
         .clk(clk), .we(mem_ram_we), .addr(mem_addr),
         .data_in(mem_data_in), .data_out(ram_data)
@@ -120,9 +93,9 @@ module cpu(
         .a(A), .b(B), .res(RES)
     );
 
-    //========================================================================
+   
     // TESTBENCH COMPATIBILITY ALIASES
-    //========================================================================
+   
     wire [7:0] pc = if_pc;
     wire [7:0] instruction = if_instruction;
     wire [3:0] opcode = id_opcode;
