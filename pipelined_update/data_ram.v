@@ -13,7 +13,6 @@ always @(posedge clk) begin
         memory[addr] <= data_in;
 end
 
-// Changed from always @(*) to continuous assignment
 assign data_out = memory[addr];
 
 endmodule
