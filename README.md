@@ -9,25 +9,25 @@ A custom 8-bit Central Processing Unit built in Verilog. This repository documen
 * `/pipelined/` - The upgraded 3-stage pipelined CPU featuring a forwarding unit, control hazard flushing, and a dedicated ALU zero-flag register.
 
 ## 🧠 Instruction Set Architecture (ISA)
-*(Common across both architectures)*
+*(Common across both architectures, with flag enhancements in Pipeline v2)*
 
 | Opcode | Instruction | Description |
 | :--- | :--- | :--- |
 | `0000` | **MOVE** | Moves data between registers (`A`, `B`, `RES`) based on operand bits. |
-| `0001` | **ADD** | `ALU = A + B` |
-| `0010` | **SUB** | `ALU = A - B` (Updates Zero and Carry/Borrow flags) |
-| `0011` | **OR** | `ALU = A | B` |
-| `0100` | **AND** | `ALU = A & B` |
-| `0101` | **XOR** | `ALU = A ^ B` |
-| `0110` | **SHL** | Logical Shift Left (`A << 1`) |
-| `0111` | **SHR** | Logical Shift Right (`A >> 1`) |
-| `1000` | **PASS A** | Passes Register A through the ALU unchanged. Latches the Zero flag. |
-| `1001` | **LOAD** | Loads 8-bit data from Data RAM into Register A. |
-| `1010` | **STORE** | Stores Register A into Data RAM at target address. |
+| `0001` | **ADD** | `ALU = A + B` *(Updates Zero Flag)* |
+| `0010` | **SUB** | `ALU = A - B` *(Updates Zero and Carry/Borrow flags)* |
+| `0011` | **OR** | `ALU = A | B` *(Updates Zero Flag)* |
+| `0100` | **AND** | `ALU = A & B` *(Updates Zero Flag)* |
+| `0101` | **XOR** | `ALU = A ^ B` *(Updates Zero Flag)* |
+| `0110` | **SHL** | Logical Shift Left (`A << 1`) *(Updates Zero Flag)* |
+| `0111` | **SHR** | Logical Shift Right (`A >> 1`) *(Updates Zero Flag)* |
+| `1000` | **PASS A** | Passes Register A through the ALU unchanged. *(Updates Zero Flag)* |
+| `1001` | **LOAD** | Loads 8-bit data from Data RAM (Addresses 0-15) into Register A. |
+| `1010` | **STORE** | Stores Register A into Data RAM (Addresses 0-15). |
 | `1011` | **JMP** | Unconditional jump to specified PC address. |
 | `1100` | **JMPE** | Jump to address if the hardware `Zero` flag is high (`1`). |
 | `1101` | **LOAD EXT** | Loads 8-bit data from external input pin into Register A. |
-| `1110` | **IND_ACCESS**| Indirect Memory Access: Uses Register A as an 8-bit pointer to Read/Write anywhere in the 256-byte RAM. |
+| `1110` | **IND_ACCESS**| Indirect Memory Access: Uses Register A as an 8-bit pointer to Read/Write anywhere in the full 256-byte RAM. |
 | `1111` | **HALT** | Stops program execution. |
 
 ---
@@ -80,10 +80,13 @@ Below is the datapath flow showing the structural pipeline registers (`IF/ID`, `
 * **Dedicated Zero-Flag:** A hardware flag register was implemented to latch ALU states only during arithmetic operations, decoupling branch conditions (`JMPE`) from unrelated intermediate pipeline datapath routing.
 
 ### Simulation & Results
-Simulated using Icarus Verilog and EPWave. The side-by-side results below demonstrate the pipelined datapath resolving hazards in real-time, showcasing the EPWave waveform alongside the final console output for the `10 * 20 = 200` multiplication logic.
+Simulated using Icarus Verilog and EPWave. The results below demonstrate the pipelined datapath resolving hazards in real-time for the `10 * 20 = 200` multiplication logic.
 
-![Pipeline Waveform and Console Output](pipelined/pipeline_results.png)
-*Pipelined simulation waveform and execution console output showing successful loop termination and multiplication result.*
+![Pipeline Waveform](pipelined/pipeline_waveform.png)
+*Pipelined simulation waveform showing datapath execution and instruction routing.*
+
+![Console Output](pipelined/console_output.png)
+*Execution console output showing successful loop termination and the final multiplication result.*
 
 ---
 
