@@ -85,7 +85,7 @@ Simulated using Icarus Verilog and EPWave. The results below demonstrate the pip
 ![Pipeline Waveform](epwave2.png)
 *Pipelined simulation waveform showing datapath execution and instruction routing.*
 
-![Console Output](console_1.png)
+![Console Output](console1.png)
 *Execution console output showing successful loop termination and the final multiplication result.*
 
 ---
