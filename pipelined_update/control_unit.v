@@ -1,23 +1,22 @@
 module control_unit(
-    input zero,
-    input [3:0] opcode,operand,
-    input [7:0] a, // Routed from the Forwarding Unit / Register File
+    input zero, 
+    input [3:0] opcode, operand,
+    input [7:0] a, 
 
     output reg [7:0] data_in,
     output reg [2:0] sel,
-    output reg halt,jmp_e,ram_we,
-    output reg [7:0] addr,load_add
+    output reg halt, jmp_e, ram_we,
+    output reg [7:0] addr, load_add
 );
 
 always @(*) begin
-    // Default values prevent latches
     halt     = 1'b0;
     jmp_e    = 1'b0;
     ram_we   = 1'b0;
     sel      = 3'b111; 
     addr     = 8'd0;
     load_add = 8'd0;
-    data_in  = a; // Route A to RAM by default
+    data_in  = a; 
 
     case(opcode)
         4'b0001: sel = 3'b000; // ADD
@@ -37,13 +36,23 @@ always @(*) begin
             jmp_e = 1'b1;
             load_add = {4'b0000, operand};
         end
-        4'b1100: begin  // JMPE
-            if(zero) begin
+        4'b1100: begin      // JMPE
+            if(zero) begin 
                 jmp_e = 1'b1;
                 load_add = {4'b0000, operand};
             end
         end
-        4'b1111: halt = 1'b1;// HALT
+        4'b1101: begin      // EXT_LOAD
+            sel = 3'b111; // Prevent floating signals
+        end
+        4'b1110: begin      // IND_ACCESS (Use A as RAM pointer)
+            addr = a; 
+            if (operand[0] == 1'b1) begin 
+                ram_we = 1'b1; // e.g., 1110_0001 -> Store A into RAM[A]
+            end
+        end
+        4'b1111: halt = 1'b1; // HALT
+        default: ;
     endcase
 end
 
