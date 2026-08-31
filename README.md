@@ -82,10 +82,10 @@ Below is the datapath flow showing the structural pipeline registers (`IF/ID`, `
 ### Simulation & Results
 Simulated using Icarus Verilog and EPWave. The results below demonstrate the pipelined datapath resolving hazards in real-time for the `10 * 20 = 200` multiplication logic.
 
-![Pipeline Waveform](pipelined/pipeline_waveform.png)
+![Pipeline Waveform](epwave2.png)
 *Pipelined simulation waveform showing datapath execution and instruction routing.*
 
-![Console Output](pipelined/console_output.png)
+![Console Output](console_1.png)
 *Execution console output showing successful loop termination and the final multiplication result.*
 
 ---
