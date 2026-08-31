@@ -44,8 +44,20 @@ always @(posedge clk) begin
                     end
                 endcase
             end
+            
+            // Catch all ALU operations and save the output to RES
+            4'b0001, 4'b0010, 4'b0011, 4'b0100, 
+            4'b0101, 4'b0110, 4'b0111, 4'b1000: begin
+                res <= alu_out;
+            end
+
             4'b1001: a <= ram_data; // LOAD into A
             4'b1101: a <= ext_data; // EXT LOAD
+            
+            // Catch the new Indirect Load
+            4'b1110: begin          
+                if (operand[0] == 1'b0) a <= ram_data;
+            end
         endcase
     end
 end
