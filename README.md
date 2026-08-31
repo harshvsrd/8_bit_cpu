@@ -79,6 +79,12 @@ Below is the datapath flow showing the structural pipeline registers (`IF/ID`, `
 * **Control Hazards:** Unconditional and conditional jumps trigger a `flush` signal to the `IF/ID` register, scrubbing the incorrect instruction fetched during the branch calculation.
 * **Dedicated Zero-Flag:** A hardware flag register was implemented to latch ALU states only during arithmetic operations, decoupling branch conditions (`JMPE`) from unrelated intermediate pipeline datapath routing.
 
+### Simulation & Results
+Simulated using Icarus Verilog and EPWave. The side-by-side results below demonstrate the pipelined datapath resolving hazards in real-time, showcasing the EPWave waveform alongside the final console output for the `10 * 20 = 200` multiplication logic.
+
+![Pipeline Waveform and Console Output](pipelined/pipeline_results.png)
+*Pipelined simulation waveform and execution console output showing successful loop termination and multiplication result.*
+
 ---
 
 ## 🛠️ How to Run
