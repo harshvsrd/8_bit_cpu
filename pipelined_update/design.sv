@@ -13,30 +13,34 @@ module cpu(
     input [7:0] ext_data
 );
 
-    // Stage 1 Wires (Fetch)
-  wire [7:0] if_pc,if_instruction;
-    // Stage 2 Wires (Decode/Execute)
-  wire [7:0] id_pc,id_instruction;
-  wire [3:0] id_opcode,id_operand;
+    wire [7:0] if_pc,if_instruction;
+    wire [7:0] id_pc,id_instruction;
+    wire [3:0] id_opcode,id_operand;
 
-  wire [7:0] A,B,RES,fwd_A,fwd_B,alu_out,data_in;
+    wire [7:0] A,B,RES,fwd_A,fwd_B,alu_out,data_in;
     wire [2:0] sel;
-    wire zero, carry, overflow;
+    wire current_zero, carry, overflow; 
     wire halt, jmp_e, ram_we;
     wire [7:0] addr, load_add;
     wire flush;
 
-  // Stage 3 Wires (Memory/Write-Back)
-  wire [3:0] mem_opcode,mem_operand;
-  wire [7:0] mem_alu_out,mem_addr,mem_data_in;
+    wire [3:0] mem_opcode,mem_operand;
+    wire [7:0] mem_alu_out,mem_addr,mem_data_in;
     wire  mem_ram_we;
     wire [7:0] ram_data;
 
-    // Flush logic for control hazards
     assign flush = jmp_e;
 
-   
-    // STAGE 1: FETCH
+    // --- FIX: DEDICATED ZERO FLAG REGISTER ---
+    reg zero_flag;
+    always @(posedge clk) begin
+        if (rst) zero_flag <= 1'b0;
+        // Lock the flag only when an ALU operation executes
+        else if (id_opcode >= 4'b0001 && id_opcode <= 4'b1000) begin
+            zero_flag <= current_zero;
+        end
+    end
+
     pc PC(.clk(clk), .rst(rst), .halt(halt), .jmp_e(jmp_e), .load_add(load_add), .pc(if_pc));
     instruction_mem IM(.addr(if_pc), .instruction(if_instruction));
 
@@ -46,7 +50,6 @@ module cpu(
         .id_pc(id_pc), .id_instruction(id_instruction)
     );
 
-    // STAGE 2: DECODE & EXECUTE
     assign id_opcode  = id_instruction[7:4];
     assign id_operand = id_instruction[3:0];
 
@@ -58,14 +61,13 @@ module cpu(
     );
 
     alu ALU(
-        .a(fwd_A),
-        .b(fwd_B),
+        .a(fwd_A), .b(fwd_B),
         .sel(sel), .alu_out(alu_out),
-        .carry(carry), .overflow(overflow), .zero(zero)
+        .carry(carry), .overflow(overflow), .zero(current_zero)
     );
 
     control_unit CU(
-        .zero(zero), .opcode(id_opcode), .operand(id_operand),
+        .zero(zero_flag), .opcode(id_opcode), .operand(id_operand), 
         .a(fwd_A), 
         .data_in(data_in), .sel(sel), .halt(halt),
         .jmp_e(jmp_e), .ram_we(ram_we), .addr(addr), .load_add(load_add)
@@ -79,8 +81,6 @@ module cpu(
         .mem_alu_out(mem_alu_out), .mem_addr(mem_addr), .mem_data_in(mem_data_in), .mem_ram_we(mem_ram_we)
     );
 
-    // STAGE 3: MEMORY & WRITE-BACK
-   
     data_ram DR(
         .clk(clk), .we(mem_ram_we), .addr(mem_addr),
         .data_in(mem_data_in), .data_out(ram_data)
@@ -93,9 +93,6 @@ module cpu(
         .a(A), .b(B), .res(RES)
     );
 
-   
-    // TESTBENCH COMPATIBILITY ALIASES
-   
     wire [7:0] pc = if_pc;
     wire [7:0] instruction = if_instruction;
     wire [3:0] opcode = id_opcode;
