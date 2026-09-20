@@ -5,14 +5,13 @@ module pc(
 );
 
 always @(posedge clk) begin
-    if(halt)
-        pc <= pc;
-    else if(rst)
+    if(rst)
         pc <= 0;
-  else if(jmp_e)
+    else if(halt)
+        pc <= pc;
+    else if(jmp_e)
         pc <= load_add;
     else
         pc <= pc + 1;
 end
-
 endmodule
